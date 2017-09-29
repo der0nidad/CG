@@ -168,8 +168,9 @@ int main(int argc, char **argv)
         }
 
         check_argc(argc, 4);
-        Image src_image = load_image(argv[1]), dst_image;
-		vector<Image> chnls;
+        Image src_image = load_image(argv[1]), dst_image, temp_image;
+        vector<Image> chnls;
+		vector<int> maxresult;
         string action(argv[3]);
 
         if (action == "--sobel-x") {
@@ -253,18 +254,30 @@ int main(int argc, char **argv)
             
             
             chnls.reserve(3);
+            maxresult.reserve(6);
             chnls = triple_img(src_image);
-            
+            // maxresult = searching_the_best_shift(chnls.at(0), chnls.at(1));
+            for (uint i = 0; i < maxresult.size(); ++i)
+            {
+             
+                cout << " вектора   "<< maxresult.at(i) << "\n";
+            }
+            cout << "первый\n";
+             temp_image = consolidation_with_shift_using_mse(chnls.at(0), chnls.at(1), searching_the_best_shift(chnls.at(0), chnls.at(1)));
+            cout << "второй\n";
+            temp_image = consolidation_with_shift_using_mse(temp_image, chnls.at(2), searching_the_best_shift(temp_image, chnls.at(2)));
+            cout << "третий\n";
             dst_image = consolidation(chnls);
-            cout << "Ух нихуя ж себе!" << calc_MSE_metric(dst_image, src_image) << " Великолепно!!";
-            cout << "Ух нихуя ж себе!" << calc_Cross_Corr_metric (dst_image, src_image) << " Великолепно!!";
+            //cout << "Ух нихуя ж себе!" << calc_MSE_metric(temp_image, src_image,0,0) << " Великолепно!!";
+            //cout << "Ух нихуя ж себе!" << calc_Cross_Corr_metric (temp_image, src_image,0,0) << " Великолепно!!";
             /*chnls[0]  = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 
                 isInterp, isSubpixel, subScale);
            dst_image = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 
                 isInterp, isSubpixel, subScale); */         } else {
             throw string("unknown action ") + action;
         }
-        save_image(dst_image, argv[2]);
+        cout <<"Я почти успешен!"<< temp_image.n_rows << "  " << temp_image.n_cols;
+        save_image(temp_image, argv[2]);
         //save_image(chnls.at(2), argv[2]);
         //save_image(chnls.at(1), argv[4]);
         //save_image(chnls.at(2), argv[5]);
