@@ -254,9 +254,10 @@ int main(int argc, char **argv)
             
             chnls.reserve(3);
             chnls = triple_img(src_image);
-            cout << "147"<< endl;
+            
             dst_image = consolidation(chnls);
-            cout << "25" << endl;
+            cout << "Ух нихуя ж себе!" << calc_MSE_metric(dst_image, src_image) << " Великолепно!!";
+            cout << "Ух нихуя ж себе!" << calc_Cross_Corr_metric (dst_image, src_image) << " Великолепно!!";
             /*chnls[0]  = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 
                 isInterp, isSubpixel, subScale);
            dst_image = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 
