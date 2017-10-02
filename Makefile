@@ -4,13 +4,13 @@ CXXFLAGS = -O2 -g -Wall -std=c++0x
 # Strict compiler options
 CXXFLAGS += -Werror -Wformat-security -Wignored-qualifiers -Winit-self \
 		-Wswitch-default -Wfloat-equal -Wshadow -Wpointer-arith \
-		-Wtype-limits -Wempty-body -Wlogical-op \
+		 -Wempty-body -Wlogical-op \
 		-Wmissing-field-initializers -Wctor-dtor-privacy \
 		-Wnon-virtual-dtor -Wstrict-null-sentinel \
 		-Woverloaded-virtual -Wsign-promo -Weffc++
 
 # Directories with source code
-#-Wold-style-cast 
+#-Wold-style-cast -Wtype-limits
 SRC_DIR = src
 INCLUDE_DIR = include
 

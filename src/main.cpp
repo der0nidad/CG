@@ -256,18 +256,21 @@ int main(int argc, char **argv)
             chnls.reserve(3);
             maxresult.reserve(6);
             chnls = triple_img(src_image);
-            // maxresult = searching_the_best_shift(chnls.at(0), chnls.at(1));
+             maxresult = searching_the_best_shift(chnls.at(0), chnls.at(1));
+            
             for (uint i = 0; i < maxresult.size(); ++i)
             {
              
                 cout << " вектора   "<< maxresult.at(i) << "\n";
             }
             cout << "первый\n";
-             temp_image = consolidation_with_shift_using_mse(chnls.at(0), chnls.at(1), searching_the_best_shift(chnls.at(0), chnls.at(1)));
+             temp_image = consolidation_with_shift_using_mse(chnls.at(0), chnls.at(1), maxresult); /*searching_the_best_shift(chnls.at(0), chnls.at(1)));*/
             cout << "второй\n";
-            temp_image = consolidation_with_shift_using_mse(temp_image, chnls.at(2), searching_the_best_shift(temp_image, chnls.at(2)));
+            cout << "размеры tremp img n_rows " << temp_image.n_rows << "  n_cols  " << temp_image.n_cols << "\n";
+            temp_image = consolidation_with_shift_using_mse(temp_image, chnls.at(2), searching_the_best_shift(/*все ломается здесь*/ chnls.at(2), temp_image));
             cout << "третий\n";
             dst_image = consolidation(chnls);
+            cout << "dst img rows, cols " << dst_image.n_rows << "  "<< dst_image.n_cols << "temp_image rows cols "  << temp_image.n_rows << "  " << temp_image.n_cols;
             //cout << "Ух нихуя ж себе!" << calc_MSE_metric(temp_image, src_image,0,0) << " Великолепно!!";
             //cout << "Ух нихуя ж себе!" << calc_Cross_Corr_metric (temp_image, src_image,0,0) << " Великолепно!!";
             /*chnls[0]  = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 

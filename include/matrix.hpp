@@ -137,7 +137,7 @@ template<typename ValueT>
 ValueT &Matrix<ValueT>::operator()(uint row, uint col)
 {
     if (row >= n_rows or col >= n_cols)
-        throw std::string("Out of bounds" + std::to_string(row) + "  " + std::to_string(col) + " " + std::to_string(1) + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols));
+        throw std::string("Out of bounds " + std::to_string(row) + "  " + std::to_string(col) + " " + std::to_string(1) + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols));
     row += pin_row;
     col += pin_col;
     return _data.get()[row * stride + col];
@@ -147,7 +147,7 @@ template<typename ValueT>
 const ValueT &Matrix<ValueT>::operator()(uint row, uint col) const
 {
     if (row >= n_rows or col >= n_cols)
-        throw std::string("Out of bounds" + std::to_string(row) + ",  cols: " + std::to_string(col) + ", case: " + std::to_string(2) + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols) );
+        throw std::string("Out of bounds " + std::to_string(row) + ",  cols: " + std::to_string(col) + ", case: " + std::to_string(2) + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols) );
     row += pin_row;
     col += pin_col;
     return _data.get()[row * stride + col];
@@ -162,7 +162,7 @@ const Matrix<ValueT> Matrix<ValueT>::submatrix(uint prow, uint pcol,
                                                uint rows, uint cols) const
 {
     if (prow + rows > n_rows or pcol + cols > n_cols)
-        throw std::string("Out of bounds" + std::to_string(rows + prow) + "  " + std::to_string(cols + pcol) + "  " + std::to_string(3)  + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols));
+        throw std::string("Out of bounds " + std::to_string(rows + prow) + "  " + std::to_string(cols + pcol) + "  " + std::to_string(3)  + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols));
     // copying requested data to submatrix.
     Matrix<ValueT> tmp(*this);
     make_rw(tmp.n_rows) = rows;
