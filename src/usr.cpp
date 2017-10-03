@@ -76,16 +76,16 @@ std::vector<int> searching_the_best_shift(const Image &base,  const Image &test)
         //maxresult.reserve(6);
         int mse_temp = 0;//, cross_corr_temp = 0;
         int width_mse = 0, height_mse = 0, width_cross_corr = 0, height_cross_corr = 0;
-        int yyy = 0;
+        // int yyy = 0;
 
         for (int i = -15; i < 16; ++i)
         {
             for (int j = -15; j < 16; ++j)
             {
-                cout << "перед " << yyy;
+                // cout << "перед " << yyy;
                 mse_temp = calc_MSE_metric(base, test, i ,j);
-                yyy++;
-                cout << " после ";  
+                // yyy++;
+                // cout << " после ";  
                 
                 if(mse_temp < maxresult.at(0)){
                     maxresult.at(0) = mse_temp;
@@ -115,8 +115,13 @@ Image consolidation_with_shift_using_mse(const Image &base,  const Image &test, 
     uint height = base.n_rows;
     // cout << "Обоссаный деед\n";
     Image result = Image(height,width);
-    for (uint i = maxresult.at(1); i < height - maxresult.at(1)  ; ++i) {
-        for (uint j = maxresult.at(1); j < width - maxresult.at(2); ++j) {      
+    for (uint i =abs( maxresult.at(1)); i < height -abs( maxresult.at(1))  ; ++i) {
+        for (uint j = abs( maxresult.at(1)); j < width - abs(maxresult.at(2)); ++j) {      
+
+
+
+
+        
             result(i,j) = std::make_tuple( get<0>(base(i,j)) + get<0>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))),  
                 get<1>( base(i,j)) + get<1>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))),  get<2>(base(i,j)) + get<2>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))));
         }
