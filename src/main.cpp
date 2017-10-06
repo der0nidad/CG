@@ -15,6 +15,17 @@ using std::numeric_limits;
 
 #include "align.h"
 
+inline int check_color(Image input){
+    for (uint i = 0; i < input.n_rows; ++i)
+    {
+        for (uint j = 0; j < input.n_cols; ++j)
+        {
+            if( (std::get<0>(input(i,j)) > 255 ) || (std::get<1>(input(i,j)) > 255 ) || (std::get<2>(input(i,j)) > 255)) cout << "  Подстава!!  " << i << " столбец " << j;
+        }
+    }
+    return 0;
+}
+
 void print_help(const char *argv0)
 {
     const char *usage =
@@ -257,28 +268,50 @@ int main(int argc, char **argv)
             chnls.reserve(3);
             maxresult.reserve(6);
             chnls = triple_img(src_image);
-             maxresult = searching_the_best_shift(chnls.at(0), chnls.at(2));
-           
-            
+            check_color(chnls.at(1));
+      
+            maxresult = searching_the_best_shift(chnls.at(0), chnls.at(1));
             for (uint i = 0; i < maxresult.size(); ++i)
             {
              
                 cout << " вектора   "<< maxresult.at(i) << "\n";
             }
+            // cout << "конец секции тестов\n";
+      
             cout << "первый\n";
-             temp_image = consolidation_with_shift_using_mse(chnls.at(0), chnls.at(1), maxresult); /*searching_the_best_shift(chnls.at(0), chnls.at(1)));*/
+             temp_image = consolidation_with_shift_using_mse(chnls.at(0), chnls.at(1), maxresult, 1, 2); /*searching_the_best_shift(chnls.at(0), chnls.at(1)));*/
             cout << "второй\n";
-            cout << "размеры tremp img n_rows " << temp_image.n_rows << "  n_cols  " << temp_image.n_cols << "\n";
-              maxresult2 = searching_the_best_shift(temp_image, chnls.at(2));
+            // cout << "размеры tremp img n_rows " << temp_image.n_rows << "  n_cols  " << temp_image.n_cols << "\n";
+              /*maxresult2 = searching_the_best_shift(temp_image, chnls.at(2));
                   for (uint i = 0; i < maxresult.size(); ++i)
             {
              
                 cout << " вектор 2 temp  "<< maxresult.at(i) << "\n";
-            }
-            temp_image = consolidation_with_shift_using_mse(temp_image, chnls.at(2), searching_the_best_shift(/*все ломается здесь*/ chnls.at(2), temp_image));
+            }*/
+            maxresult = searching_the_best_shift(temp_image, chnls.at(2));
+            temp_image = consolidation_with_shift_using_mse(temp_image, chnls.at(2), maxresult, 2, 2);
             cout << "третий\n";
-            dst_image = consolidation(chnls);
-            cout << "dst img rows, cols " << dst_image.n_rows << "  "<< dst_image.n_cols << "temp_image rows cols "  << temp_image.n_rows << "  " << temp_image.n_cols;
+            for (uint i = 0; i < maxresult.size(); ++i)
+            {
+             
+                cout << "  new  вектора   "<< maxresult.at(i) << "\n";
+            }
+            maxresult = searching_the_best_shift(chnls.at(2), temp_image);
+for (uint i = 0; i < maxresult.size(); ++i)
+            {
+             
+                cout << "  newnew перестановки вектора   "<< maxresult.at(i) << "\n";
+            }
+
+            // cout << "конец секции тестов\n";
+            check_color(temp_image);
+            // cout << "Пикселы изображения 1 канал рэд" << std::get<0>(chnls.at(2)(50,50)) << " g: " << std::get<1>(chnls.at(2)(50,50)) << "  b: " << std::get<2>(chnls.at(2)(50,50)) ;
+            // cout << "Пикселы изображения 1 канал рэд" << std::get<0>(temp_image(50,50)) << " g: " << std::get<1>(temp_image(50,50)) << "  b: " << std::get<2>(temp_image(50,50)) ;
+            // dst_image = consolidation(chnls);
+                        // cout << "Пикселы изображения 1 канал рэд" << std::get<0>(dst_image(5,5)) << " g: " << std::get<1>(dst_image(5,5)) << "  b: " << std::get<2>(dst_image(5,5)) ;
+
+            // cout << "dst img rows, cols " << dst_image.n_rows << "  "<< dst_image.n_cols << "temp_image rows cols "  << temp_image.n_rows << "  " << temp_image.n_cols;
+            // cout << "dst imag mse " << 
             //cout << "Ух нихуя ж себе!" << calc_MSE_metric(temp_image, src_image,0,0) << " Великолепно!!";
             //cout << "Ух нихуя ж себе!" << calc_Cross_Corr_metric (temp_image, src_image,0,0) << " Великолепно!!";
             /*chnls[0]  = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 

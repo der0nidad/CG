@@ -9,6 +9,12 @@ using std::vector;
 inline int abs(int a){
     return a > 0 ? a : -a;
 }
+inline uint sqrr(uint x){
+    return x * x;
+}
+inline int sqrr2(uint x){
+    return x * x;
+}
 inline int check_border(int a, int  b, int border){
     return ((a+b )>  border )? (border - 2) : (a + b);
 }
@@ -32,7 +38,7 @@ for (uint k = 0; k < 3; k++){
         }
     }
     result.push_back(channel);
-    cout << result.size();
+    // cout << result.size();
 }
     return result;
 	}
@@ -70,11 +76,15 @@ std::vector<int> try_one_shift(const Image &base,  const Image &test, int n, int
 */
 std::vector<int> searching_the_best_shift(const Image &base,  const Image &test)
 {
-        vector<int> maxresult(6);
+        vector<int> maxresult(7);
         maxresult.at(0) = 2000000000;
+        maxresult.at(3) = -200000000;
+        // cout << "\n vector size " << maxresult.size();
+        // for(uint i = 0; i < maxresult.size(); i++){
+        // cout << " \n new vector " << maxresult.at(i) << " at " << i ; }
         // maxresult содержит две тройки - для каждой метрики. В 1 (и 4) элементах значения метрик, а в 2 и 3 (соотв. 5 и 6 ) - значения сдвигов
         //maxresult.reserve(6);
-        int mse_temp = 0;//, cross_corr_temp = 0;
+        int mse_temp = 0, cross_corr_temp = 0;
         int width_mse = 0, height_mse = 0, width_cross_corr = 0, height_cross_corr = 0;
         // int yyy = 0;
 
@@ -82,22 +92,22 @@ std::vector<int> searching_the_best_shift(const Image &base,  const Image &test)
         {
             for (int j = -15; j < 16; ++j)
             {
-                // cout << "перед " << yyy;
+                 // cout << "  перед ";// << yyy;
                 mse_temp = calc_MSE_metric(base, test, i ,j);
-                // yyy++;
-                // cout << " после ";  
+                 // yyy++;
+                 // cout << " после, mse:  " << mse_temp;  
                 
                 if(mse_temp < maxresult.at(0)){
                     maxresult.at(0) = mse_temp;
                     width_mse = i;
                     height_mse = j;
-                }/*
+                }
                 cross_corr_temp = calc_Cross_Corr_metric(base, test, i ,j);
-                if( cross_corr_temp> maxresult.at(3)){
+                if( cross_corr_temp > maxresult.at(3)){
                     maxresult.at(3) = cross_corr_temp;
                     width_cross_corr = i;
                     height_cross_corr = j;
-                }*/
+                }
                 
             }
         }
@@ -105,30 +115,45 @@ std::vector<int> searching_the_best_shift(const Image &base,  const Image &test)
         maxresult.at(2) = height_mse;
         maxresult.at(4) = width_cross_corr;
         maxresult.at(5) = height_cross_corr;
-        cout << " Зе бест шит \n";
+        // cout << " Зе бест шит \n";
         return maxresult;
 }
-
-Image consolidation_with_shift_using_mse(const Image &base,  const Image &test, std::vector<int> maxresult){
+int test1(uint par){
+    return sqrr2(par);
+}
+uint test2(uint par){
+    return sqrr2(par);
+}
+Image consolidation_with_shift_using_mse(const Image &base,  const Image &test, std::vector<int> maxresult, int chnl_number_to_add, int metric){
 
     uint width = base.n_cols;
     uint height = base.n_rows;
+    vector<int> myvector(3);
     // cout << "Обоссаный деед\n";
     Image result = Image(height,width);
-    for (uint i =abs( maxresult.at(1)); i < height -abs( maxresult.at(1))  ; ++i) {
-        for (uint j = abs( maxresult.at(1)); j < width - abs(maxresult.at(2)); ++j) {      
-
-
-
-
-        
-            result(i,j) = std::make_tuple( get<0>(base(i,j)) + get<0>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))),  
+    if(metric == 1){//using mse
+            myvector.at(1) = maxresult.at(1);
+            myvector.at(2) = maxresult.at(2);
+    }else if(metric == 2) {//using cross corr
+            myvector.at(1) = maxresult.at(4);
+            myvector.at(2) = maxresult.at(5);
+        }else{ cout << "не та метрика";}
+    for (uint i =abs( myvector.at(1)); i < height -abs( myvector.at(1))  ; ++i) {
+        for (uint j = abs( myvector.at(1)); j < width - abs(myvector.at(2)); ++j) {      
+        if(chnl_number_to_add == 1){
+        result(i,j) = std::make_tuple(get<0>(base(i, j)), get<1>(test(check_border(i,myvector.at(1), height),check_border(j, myvector.at(2), width))),get<2>(base(i, j) ));
+    }
+       if(chnl_number_to_add == 2){
+        result(i,j) = std::make_tuple(get<0>(base(i, j)),get<2>(base(i, j) ), get<2>(test(check_border(i,myvector.at(1), height),check_border(j, myvector.at(2), width))));
+    }
+        // а что если просто писать в соотв каналы?? и ничего не складывать???
+       /*     result(i,j) = std::make_tuple( get<0>(base(i,j)) + get<0>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))),  
                 get<1>( base(i,j)) + get<1>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))),  get<2>(base(i,j)) + get<2>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))));
-        }
+        */}
         }/*
-        for (int i = 100; i < 100; ++i)
+        for (int i = 50; i < 100; ++i)
         {
-            for (int j = 1000; j < 100; ++j)
+            for (int j = 50; j < 100; ++j)
             {
                 result(i,j) = std::make_tuple(255,255,255);
             }
@@ -147,8 +172,8 @@ int calc_MSE_metric(const Image &base,  const Image &test, int n, int m) //base 
 {
     int width = base.n_cols;
     int height = base.n_rows;
-    int mse = 0;
-    int sum = 0;
+    uint mse = 0;
+    uint sum = 0;
     Image result = Image(height, width);
     auto preSquared = make_tuple(0,0,0);
     for(int i = abs(n) + 1; i < height - abs(n) - 1; ++i){ 
@@ -156,7 +181,7 @@ int calc_MSE_metric(const Image &base,  const Image &test, int n, int m) //base 
         {
             // cout << " mse ";
             //берем по пикселю из каждого изображения, считаем вектор разности, скалярно возводим его в квадрат. Прибавляем к int summa. ПОздравляем, вы великолепны
-            if((j != 4294967295) & (i != 391))
+            // if((j != 4294967295) & (i != 391))
             preSquared = std::make_tuple( abs(get<0>(base(i,j)) - get<0>(test(check_border(i,n,height),check_border(j, m , width) ))),  
                 abs(get<1>( base(i,j)) - get<1>(test(check_border(i, n, height) ,check_border(j, m, width) ))),  
                 abs(get<2>(base(i,j)) - get<2>(test(check_border(i, n, height) ,check_border(j, m, width) ))));
@@ -164,10 +189,21 @@ int calc_MSE_metric(const Image &base,  const Image &test, int n, int m) //base 
             sum = get<0>(preSquared) * get<0>(preSquared) + get<1>(preSquared) * get<1>(preSquared) + get<2>(preSquared) * get<2>(preSquared) ;
             mse += sum;
 
+
+/* чисто для сеёва
+     preSquared = std::make_tuple( abs(get<0>(base(i,j)) - get<0>(test(check_border(i,n,height),check_border(j, m , width) ))),  
+                abs(get<1>( base(i,j)) - get<1>(test(check_border(i, n, height) ,check_border(j, m, width) ))),  
+                abs(get<2>(base(i,j)) - get<2>(test(check_border(i, n, height) ,check_border(j, m, width) ))));
+        //что хзздесь происходит????
+            sum = get<0>(preSquared) * get<0>(preSquared) + get<1>(preSquared) * get<1>(preSquared) + get<2>(preSquared) * get<2>(preSquared) ;
+            mse += sum;
+*/
         }
     }
     mse /= width;
     mse /= height;
+            if(mse < 0 ) cout << "  ПОДстава!!!  ";
+
     return mse;
 }
 
@@ -180,8 +216,8 @@ int calc_Cross_Corr_metric(const Image &base,  const Image &test, int n, int m)
     int mse = 0;
     int sum = 0;
     Image result = Image(height, width);
-    for(int i = abs(n); i < height - abs(n); ++i){ 
-        for (int j = abs(m); j < width - abs(m); ++j)
+    for(int i = abs(n) +1 ; i < height - abs(n) -1; ++i){ 
+        for (int j = abs(m) +1 ; j < width - abs(m) -1; ++j)
         {
             sum = get<0>(base(i,j)) * get<0>(test(i+n,j+m)) + get<1>(base(i,j)) * get<1>(test(i+n,j+m)) + get<2>(base(i,j)) * get<2>(test(i+n,j+m)) ;
             mse += sum;
