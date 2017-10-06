@@ -147,7 +147,7 @@ template<typename ValueT>
 const ValueT &Matrix<ValueT>::operator()(uint row, uint col) const
 {
     if (row >= n_rows or col >= n_cols)
-        throw std::string("Out of bounds " + std::to_string(row) + ",  cols: " + std::to_string(col) + ", case: " + std::to_string(2) + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols) );
+        throw std::string("Out of bounds " + std::to_string(static_cast<int>(row)) + ",  cols: " + std::to_string(col) + ", case: " + std::to_string(2) + ",  n_rows:" + std::to_string(n_rows)+ ",  n_cols:" +std::to_string(n_cols) );
     row += pin_row;
     col += pin_col;
     return _data.get()[row * stride + col];

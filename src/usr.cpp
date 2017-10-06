@@ -16,7 +16,7 @@ inline int sqrr2(uint x){
     return x * x;
 }
 inline int check_border(int a, int  b, int border){
-    return ((a+b )>  border )? (border - 2) : (a + b);
+    return ((a+b )>=  border )? (border - 1) : (a + b);
 }
 
 std::vector<Image>  triple_img(const Image &im){
@@ -76,6 +76,7 @@ std::vector<int> try_one_shift(const Image &base,  const Image &test, int n, int
 */
 std::vector<int> searching_the_best_shift(const Image &base,  const Image &test)
 {
+        
         vector<int> maxresult(7);
         maxresult.at(0) = 2000000000;
         maxresult.at(3) = -200000000;
@@ -95,9 +96,10 @@ std::vector<int> searching_the_best_shift(const Image &base,  const Image &test)
                  // cout << "  перед ";// << yyy;
                 mse_temp = calc_MSE_metric(base, test, i ,j);
                  // yyy++;
-                 // cout << " после, mse:  " << mse_temp;  
+                  // cout << " " << mse_temp;  
                 
                 if(mse_temp < maxresult.at(0)){
+                    
                     maxresult.at(0) = mse_temp;
                     width_mse = i;
                     height_mse = j;
@@ -110,7 +112,9 @@ std::vector<int> searching_the_best_shift(const Image &base,  const Image &test)
                 }
                 
             }
+            // cout << "\n new line:";
         }
+
         maxresult.at(1) = width_mse;
         maxresult.at(2) = height_mse;
         maxresult.at(4) = width_cross_corr;
@@ -124,27 +128,32 @@ int test1(uint par){
 uint test2(uint par){
     return sqrr2(par);
 }
-Image consolidation_with_shift_using_mse(const Image &base,  const Image &test, std::vector<int> maxresult, int chnl_number_to_add, int metric){
+Image consolidation_with_shift_using_mse(const Image &base,  const Image &test, std::vector<int> maxresult, int chnl_number_to_add, int metric){//chnl_number_to_add  - какой канал добавлять
 
     uint width = base.n_cols;
     uint height = base.n_rows;
-    vector<int> myvector(3);
+    vector<int> myvector(4);
     // cout << "Обоссаный деед\n";
     Image result = Image(height,width);
     if(metric == 1){//using mse
-            myvector.at(1) = maxresult.at(1);
-            myvector.at(2) = maxresult.at(2);
+        // Эти два коммента ОЧЕНЬ ВАЖНЫ!!
+        //Разберись с путаницей в myvector'ах - у тебя работает все, кроме этого
+            myvector.at(2) = maxresult.at(1);
+            myvector.at(1) = maxresult.at(2);
+            cout << "Срыв покровов " << myvector.at(1) << "Дружко продолжает отжигать: " << myvector.at(2);
+            // myvector.at(1) = 1;
+            // myvector.at(2) = -4;
     }else if(metric == 2) {//using cross corr
-            myvector.at(1) = maxresult.at(4);
-            myvector.at(2) = maxresult.at(5);
+            myvector.at(2) = maxresult.at(4);
+            myvector.at(1) = maxresult.at(5);
         }else{ cout << "не та метрика";}
-    for (uint i =abs( myvector.at(1)); i < height -abs( myvector.at(1))  ; ++i) {
-        for (uint j = abs( myvector.at(1)); j < width - abs(myvector.at(2)); ++j) {      
+    for (uint i =abs( myvector.at(2)) + 1; i < height -abs( myvector.at(2)) -1  ; ++i) {
+        for (uint j = abs( myvector.at(1)) +1 ; j < width - abs(myvector.at(1)) -1; ++j) {      
         if(chnl_number_to_add == 1){
-        result(i,j) = std::make_tuple(get<0>(base(i, j)), get<1>(test(check_border(i,myvector.at(1), height),check_border(j, myvector.at(2), width))),get<2>(base(i, j) ));
-    }
+        result(i,j) = std::make_tuple(get<0>(base(i, j)), get<1>(test(i + myvector.at(2), j + myvector.at(1))),get<2>(base(i, j) ));
+            }
        if(chnl_number_to_add == 2){
-        result(i,j) = std::make_tuple(get<0>(base(i, j)),get<2>(base(i, j) ), get<2>(test(check_border(i,myvector.at(1), height),check_border(j, myvector.at(2), width))));
+        result(i,j) = std::make_tuple(get<0>(base(i, j)),get<1>(base(i, j) ), get<2>(test(i + myvector.at(2), j + myvector.at(1))));
     }
         // а что если просто писать в соотв каналы?? и ничего не складывать???
        /*     result(i,j) = std::make_tuple( get<0>(base(i,j)) + get<0>(test(check_border(i,maxresult.at(1), height),check_border(j, maxresult.at(2), width))),  
@@ -170,24 +179,24 @@ Image consolidation_with_shift_using_mse(const Image &base,  const Image &test, 
 //нужно взять мимнум
 int calc_MSE_metric(const Image &base,  const Image &test, int n, int m) //base - нееподвижна, test - свдигаем
 {
-    int width = base.n_cols;
-    int height = base.n_rows;
+    int width = base.n_cols - 32;
+    int height = base.n_rows - 32;
     uint mse = 0;
-    uint sum = 0;
+    
     Image result = Image(height, width);
     auto preSquared = make_tuple(0,0,0);
-    for(int i = abs(n) + 1; i < height - abs(n) - 1; ++i){ 
-        for (int j = abs(m) + 1; j < width - abs(m) - 1; ++j)
+    for(int i = 16; i < height - 16; ++i){ 
+        for (int j = 16; j < width - 16; ++j)
         {
             // cout << " mse ";
             //берем по пикселю из каждого изображения, считаем вектор разности, скалярно возводим его в квадрат. Прибавляем к int summa. ПОздравляем, вы великолепны
             // if((j != 4294967295) & (i != 391))
-            preSquared = std::make_tuple( abs(get<0>(base(i,j)) - get<0>(test(check_border(i,n,height),check_border(j, m , width) ))),  
-                abs(get<1>( base(i,j)) - get<1>(test(check_border(i, n, height) ,check_border(j, m, width) ))),  
-                abs(get<2>(base(i,j)) - get<2>(test(check_border(i, n, height) ,check_border(j, m, width) ))));
+            preSquared = std::make_tuple( get<0>(base(i,j)) - get<0>(test(i + n,j + m)),  
+                get<1>( base(i,j)) - get<1>(test(i + n, j + m)),  
+                get<2>(base(i,j)) - get<2>(test(i + n , j + m)));
         //что хзздесь происходит????
-            sum = get<0>(preSquared) * get<0>(preSquared) + get<1>(preSquared) * get<1>(preSquared) + get<2>(preSquared) * get<2>(preSquared) ;
-            mse += sum;
+            mse += get<0>(preSquared) * get<0>(preSquared) + get<1>(preSquared) * get<1>(preSquared) + get<2>(preSquared) * get<2>(preSquared) ;
+            
 
 
 /* чисто для сеёва
@@ -202,7 +211,7 @@ int calc_MSE_metric(const Image &base,  const Image &test, int n, int m) //base 
     }
     mse /= width;
     mse /= height;
-            if(mse < 0 ) cout << "  ПОДстава!!!  ";
+
 
     return mse;
 }
@@ -211,17 +220,19 @@ int calc_MSE_metric(const Image &base,  const Image &test, int n, int m) //base 
 int calc_Cross_Corr_metric(const Image &base,  const Image &test, int n, int m) 
 //base - нееподвижна, test - свдигаем
 {
-    int width = base.n_cols;
-    int height = base.n_rows;
-    int mse = 0;
-    int sum = 0;
+    uint width = base.n_cols - 32;
+    uint height = base.n_rows - 32;
+    uint mse = 0;
+    uint sum = 0;
     Image result = Image(height, width);
-    for(int i = abs(n) +1 ; i < height - abs(n) -1; ++i){ 
-        for (int j = abs(m) +1 ; j < width - abs(m) -1; ++j)
-        {
-            sum = get<0>(base(i,j)) * get<0>(test(i+n,j+m)) + get<1>(base(i,j)) * get<1>(test(i+n,j+m)) + get<2>(base(i,j)) * get<2>(test(i+n,j+m)) ;
-            mse += sum;
+    for(uint i = 16; i < height - 16; ++i){ 
+            for (uint j = 16; j < width - 16; ++j)
+            {
+                sum = get<0>(base(i,j)) * get<0>(test(i+n,j+m)) + get<1>(base(i,j)) * get<1>(test(i+n,j+m)) + get<2>(base(i,j)) * get<2>(test(i+n,j+m)) ;
+                mse += sum;
+            }
         }
-    }
+            mse /= width;
+    mse /= height;
     return mse;
 }
