@@ -181,12 +181,10 @@ int main(int argc, char **argv)
             dst_image = sobel_y(src_image);
         } else if (action == "--unsharp") {
             check_argc(argc, 4, 4);
-            cout << "\nАНшарп\n";
             dst_image = unsharp(src_image);
         } else if (action == "--gray-world") {
             check_argc(argc, 4, 4);
             dst_image = gray_world(src_image);
-            cout << "Ереван";
         } else if (action == "--resize") {
             check_argc(argc, 5, 5);
             double scale = read_value<double>(argv[4]);
@@ -201,7 +199,7 @@ int main(int argc, char **argv)
             if (argc == 5) {
                 fraction = read_value<double>(argv[4]);
                 check_number("fraction", fraction, 0.0, 0.4);
-            }cout << "Аффтоконраст";
+            }
             dst_image = autocontrast(src_image, fraction);
         } else if (action == "--gaussian" || action == "--gaussian-separable") {
             check_argc(argc, 5, 6);

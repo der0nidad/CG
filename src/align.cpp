@@ -85,9 +85,15 @@ for (uint i = 0; i < maxresult.size(); ++i)
                 isInterp, isSubpixel, subScale); */
     
     if(isPostprocessing){
-        postprocessingType.find("--autocontrast");
-        postprocessingType.find("--gray-world");
-        postprocessingType.find("--unsharp");
+        if(postprocessingType == "--unsharp"){
+            temp_image = unsharp(temp_image);
+        }if(postprocessingType == "--gray-world"){
+            temp_image = gray_world(temp_image);
+            
+        }if(postprocessingType == "--autocontrast"){
+            temp_image = autocontrast(temp_image,fraction);
+
+        }
     }
     return temp_image;
 }
