@@ -4,7 +4,7 @@ CXXFLAGS = -O2 -g -Wall -std=c++0x
 # Strict compiler options
 CXXFLAGS += -Werror -Wformat-security -Wignored-qualifiers -Winit-self \
 		-Wswitch-default -Wfloat-equal -Wshadow -Wpointer-arith \
-		 -Wempty-body -Wlogical-op \
+		 -Wempty-body -Wlogical-op \-Wold-style-cast -Wtype-limits\
 		-Wmissing-field-initializers -Wctor-dtor-privacy \
 		-Wnon-virtual-dtor -Wstrict-null-sentinel \
 		-Woverloaded-virtual -Wsign-promo -Weffc++

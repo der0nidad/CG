@@ -15,16 +15,7 @@ using std::numeric_limits;
 
 #include "align.h"
 
-inline int check_color(Image input){
-    for (uint i = 0; i < input.n_rows; ++i)
-    {
-        for (uint j = 0; j < input.n_cols; ++j)
-        {
-            if( (std::get<0>(input(i,j)) > 255 ) || (std::get<1>(input(i,j)) > 255 ) || (std::get<2>(input(i,j)) > 255)) cout << "  Подстава!!  " << i << " столбец " << j;
-        }
-    }
-    return 0;
-}
+
 
 void print_help(const char *argv0)
 {
@@ -180,9 +171,6 @@ int main(int argc, char **argv)
 
         check_argc(argc, 4);
         Image src_image = load_image(argv[1]), dst_image, temp_image;
-        vector<Image> chnls;
-        vector<int> maxresult;
-		vector<int> maxresult2;
         string action(argv[3]);
 
         if (action == "--sobel-x") {
@@ -193,10 +181,12 @@ int main(int argc, char **argv)
             dst_image = sobel_y(src_image);
         } else if (action == "--unsharp") {
             check_argc(argc, 4, 4);
+            cout << "\nАНшарп\n";
             dst_image = unsharp(src_image);
         } else if (action == "--gray-world") {
             check_argc(argc, 4, 4);
             dst_image = gray_world(src_image);
+            cout << "Ереван";
         } else if (action == "--resize") {
             check_argc(argc, 5, 5);
             double scale = read_value<double>(argv[4]);
@@ -211,7 +201,7 @@ int main(int argc, char **argv)
             if (argc == 5) {
                 fraction = read_value<double>(argv[4]);
                 check_number("fraction", fraction, 0.0, 0.4);
-            }
+            }cout << "Аффтоконраст";
             dst_image = autocontrast(src_image, fraction);
         } else if (action == "--gaussian" || action == "--gaussian-separable") {
             check_argc(argc, 5, 6);
@@ -263,74 +253,15 @@ int main(int argc, char **argv)
                 parse_args(argv, argc, &isPostprocessing, &postprocessingType, &fraction, &isMirror,
                     &isInterp, &isSubpixel, &subScale);                    
             }
-            
-            
-            chnls.reserve(3);
-            maxresult.reserve(6);
-            chnls = triple_img(src_image);
-            check_color(chnls.at(1));
-      // cout << "пидор";
-            maxresult = searching_the_best_shift(chnls.at(2), chnls.at(1));
-            for (uint i = 0; i < maxresult.size(); ++i)
-            {
-             
-                cout << " вектора   "<< maxresult.at(i) << "\n";
-            }
-            // cout << "конец секции тестов\n";
-      
-            cout << "первый\n";
-             temp_image = consolidation_with_shift_using_mse(chnls.at(2), chnls.at(1), maxresult, 1, 1); /*searching_the_best_shift(chnls.at(0), chnls.at(1)));*/
-            cout << "второй\n";
-            // cout << "размеры tremp img n_rows " << temp_image.n_rows << "  n_cols  " << temp_image.n_cols << "\n";
-              /*maxresult2 = searching_the_best_shift(temp_image, chnls.at(2));
-                  for (uint i = 0; i < maxresult.size(); ++i)
-            {
-             
-                cout << " вектор 2 temp  "<< maxresult.at(i) << "\n";
-            }*/
-            maxresult = searching_the_best_shift(temp_image, chnls.at(0));
-            temp_image = consolidation_with_shift_using_mse(temp_image, chnls.at(0), maxresult, 2, 1);
-            cout << "третий\n";
-            for (uint i = 0; i < maxresult.size(); ++i)
-            {
-             
-                cout << "  new  вектора   "<< maxresult.at(i) << "\n";
-            }
-            /*maxresult = searching_the_best_shift(chnls.at(2), temp_image);
-for (uint i = 0; i < maxresult.size(); ++i)
-            {
-             
-                cout << "  newnew перестановки вектора   "<< maxresult.at(i) << "\n";
-            }*/
-
-            // cout << "конец секции тестов\n";
-            check_color(temp_image);
-            // cout << "Пикселы изображения 1 канал рэд" << std::get<0>(chnls.at(2)(50,50)) << " g: " << std::get<1>(chnls.at(2)(50,50)) << "  b: " << std::get<2>(chnls.at(2)(50,50)) ;
-            // cout << "Пикселы изображения 1 канал рэд" << std::get<0>(temp_image(50,50)) << " g: " << std::get<1>(temp_image(50,50)) << "  b: " << std::get<2>(temp_image(50,50)) ;
-            // dst_image = consolidation(chnls);
-                        // cout << "Пикселы изображения 1 канал рэд" << std::get<0>(dst_image(5,5)) << " g: " << std::get<1>(dst_image(5,5)) << "  b: " << std::get<2>(dst_image(5,5)) ;
-
-            // cout << "dst img rows, cols " << dst_image.n_rows << "  "<< dst_image.n_cols << "temp_image rows cols "  << temp_image.n_rows << "  " << temp_image.n_cols;
-            // cout << "dst imag mse " << 
-            //cout << "Ух нихуя ж себе!" << calc_MSE_metric(temp_image, src_image,0,0) << " Великолепно!!";
-            //cout << "Ух нихуя ж себе!" << calc_Cross_Corr_metric (temp_image, src_image,0,0) << " Великолепно!!";
-            /*chnls[0]  = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 
+             dst_image = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 
                 isInterp, isSubpixel, subScale);
-           dst_image = align(src_image, isPostprocessing, postprocessingType, fraction, isMirror, 
-                isInterp, isSubpixel, subScale); */         } else {
+            
+                     } else {
             throw string("unknown action ") + action;
         }
-        cout <<"Я почти успешен!"<< temp_image.n_rows << "  " << temp_image.n_cols;
-        save_image(temp_image, argv[2]);
-        //save_image(chnls.at(2), argv[2]);
-        //save_image(chnls.at(1), argv[4]);
-        //save_image(chnls.at(2), argv[5]);
-        /*for(int i = 0; i < 1 ; i++)
-		{
-        	save_image2(chnls.at(i), argv[2], i);
-			
         
-    }*/ }
+        save_image(dst_image, argv[2]);
+        }
         catch (const string &s) {
         cerr << "Error: " << s << endl;
         cerr << "For help type: " << endl << argv[0] << " --help" << endl;
